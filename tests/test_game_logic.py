@@ -1,12 +1,14 @@
+import json
 import os
 import sys
+import tempfile
 
 # Ensure the project root (where logic_utils.py lives) is on the import path
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from logic_utils import check_guess, get_range_for_difficulty
+from logic_utils import check_guess, get_range_for_difficulty, load_high_scores, save_high_score
 
 def test_winning_guess():
     # If the secret is 50 and guess is 50, it should be a win
@@ -48,3 +50,49 @@ def test_get_range_for_difficulty_hard_mode_bug_fixed():
     assert get_range_for_difficulty("Hard") == (1, 50)
     # Unknown difficulty should fall back to the Normal range
     assert get_range_for_difficulty("Unknown") == (1, 100)
+
+
+# --- High Score feature tests (added via Agent Mode) ---
+
+def test_load_high_scores_missing_file():
+    """load_high_scores returns empty dict when the file doesn't exist."""
+    assert load_high_scores("/tmp/nonexistent_hs.json") == {}
+
+
+def test_save_and_load_high_score():
+    """Round-trip: save a score then load it back."""
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+        path = f.name
+    try:
+        # First save should always be a new high score
+        assert save_high_score("Normal", 80, 3, path) is True
+        scores = load_high_scores(path)
+        assert scores["Normal"]["score"] == 80
+        assert scores["Normal"]["attempts"] == 3
+
+        # A lower score should NOT overwrite
+        assert save_high_score("Normal", 50, 5, path) is False
+        scores = load_high_scores(path)
+        assert scores["Normal"]["score"] == 80  # unchanged
+
+        # A higher score SHOULD overwrite
+        assert save_high_score("Normal", 90, 1, path) is True
+        scores = load_high_scores(path)
+        assert scores["Normal"]["score"] == 90
+    finally:
+        os.unlink(path)
+
+
+def test_high_scores_separate_by_difficulty():
+    """Each difficulty level tracks its own high score independently."""
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+        path = f.name
+    try:
+        save_high_score("Easy", 70, 2, path)
+        save_high_score("Hard", 40, 4, path)
+        scores = load_high_scores(path)
+        assert scores["Easy"]["score"] == 70
+        assert scores["Hard"]["score"] == 40
+        assert "Normal" not in scores
+    finally:
+        os.unlink(path)

@@ -2,7 +2,7 @@ import random
 import streamlit as st
 
 # FIX: Refactored core game logic into shared helpers with guidance from an AI coding agent.
-from logic_utils import get_range_for_difficulty, parse_guess, update_score
+from logic_utils import get_range_for_difficulty, parse_guess, update_score, load_high_scores, save_high_score
 
 
 def check_guess(guess, secret):
@@ -48,6 +48,19 @@ low, high = get_range_for_difficulty(difficulty)
 
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
+
+# FEATURE: High Score display — planned and built with an AI coding agent (Agent Mode).
+# The agent suggested loading scores from a JSON file keyed by difficulty and showing
+# them prominently in the sidebar so players always know the score to beat.
+st.sidebar.divider()
+st.sidebar.subheader("🏆 High Scores")
+high_scores = load_high_scores()
+for diff in ["Easy", "Normal", "Hard"]:
+    entry = high_scores.get(diff)
+    if entry:
+        st.sidebar.metric(f"{diff}", f"{entry['score']} pts", f"in {entry['attempts']} guesses")
+    else:
+        st.sidebar.caption(f"{diff}: No score yet")
 
 if "secret" not in st.session_state:
     # FIX: Stabilized the secret number range per difficulty after debugging with an AI pair-programmer.
@@ -133,9 +146,13 @@ if submit:
         if outcome == "Win":
             st.balloons()
             st.session_state.status = "won"
+            # FEATURE: Persist high score on win — agent-suggested to call save_high_score here
+            # so the leaderboard in the sidebar updates automatically on the next rerun.
+            is_new = save_high_score(difficulty, st.session_state.score, st.session_state.attempts)
+            extra = " 🏆 New high score!" if is_new else ""
             st.success(
                 f"You won! The secret was {st.session_state.secret}. "
-                f"Final score: {st.session_state.score}"
+                f"Final score: {st.session_state.score}{extra}"
             )
         else:
             if st.session_state.attempts >= attempt_limit:
@@ -145,6 +162,24 @@ if submit:
                     f"The secret was {st.session_state.secret}. "
                     f"Score: {st.session_state.score}"
                 )
+
+# FEATURE: Guess History sidebar — the AI agent recommended visualizing how close each
+# guess was to the secret using a bar chart so players can see their convergence pattern.
+numeric_history = [g for g in st.session_state.history if isinstance(g, (int, float))]
+if numeric_history:
+    st.sidebar.divider()
+    st.sidebar.subheader("📊 Guess History")
+    secret = st.session_state.secret
+    # Show a table: guess number, value, and distance from secret
+    import pandas as pd
+    df = pd.DataFrame({
+        "Guess #": list(range(1, len(numeric_history) + 1)),
+        "Value": numeric_history,
+        "Distance": [abs(g - secret) for g in numeric_history],
+    })
+    st.sidebar.dataframe(df, use_container_width=True, hide_index=True)
+    # Bar chart of distance — should trend toward 0 if the player is converging
+    st.sidebar.bar_chart(df.set_index("Guess #")["Distance"])
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")

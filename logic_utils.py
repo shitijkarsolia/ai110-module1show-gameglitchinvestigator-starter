@@ -1,3 +1,40 @@
+import json
+import os
+
+HIGH_SCORE_FILE = os.path.join(os.path.dirname(__file__), "high_scores.json")
+
+
+# FEATURE: High Score tracker — planned and implemented with an AI coding agent (Agent Mode).
+# The agent suggested persisting scores to a JSON file keyed by difficulty so that
+# high scores survive across Streamlit reruns and browser refreshes.
+
+def load_high_scores(path: str = HIGH_SCORE_FILE) -> dict:
+    """Load high scores from a JSON file. Returns a dict keyed by difficulty."""
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+
+def save_high_score(difficulty: str, score: int, attempts: int, path: str = HIGH_SCORE_FILE) -> bool:
+    """Save score if it beats the current high score for the given difficulty.
+
+    Returns True if a new high score was set, False otherwise.
+    """
+    scores = load_high_scores(path)
+    entry = scores.get(difficulty)
+
+    if entry is None or score > entry["score"]:
+        scores[difficulty] = {"score": score, "attempts": attempts}
+        with open(path, "w") as f:
+            json.dump(scores, f, indent=2)
+        return True
+    return False
+
+
 def get_range_for_difficulty(difficulty: str):
     """Return (low, high) inclusive range for a given difficulty."""
     # FIX: Clarified difficulty ranges by extracting this helper with an AI pair-programmer.

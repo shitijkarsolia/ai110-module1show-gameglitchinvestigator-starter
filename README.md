@@ -37,6 +37,25 @@ This game is a Streamlit-based number guessing app where the player tries to fin
 
   ![Screenshot of pytest results with all tests passing](images/pytest-results.png)
 
-## 🚀 Stretch Features
+## 🚀 Stretch Features — Challenge 2: Feature Expansion via Agent Mode
+
+Two new features were planned and implemented using Agent Mode:
+
+### 🏆 High Score Tracker
+- Scores are persisted to a local `high_scores.json` file, keyed by difficulty level (Easy / Normal / Hard).
+- When a player wins, the app checks whether their score beats the current record for that difficulty and saves it if so.
+- The sidebar displays all high scores with `st.metric` widgets so you always know the score to beat.
+- Helper functions `load_high_scores()` and `save_high_score()` were added to `logic_utils.py` and covered by new pytest cases.
+
+### 📊 Guess History Sidebar
+- After each guess, a table and bar chart appear in the sidebar showing every guess's value and its distance from the secret number.
+- The bar chart visualizes convergence — if you're following the hints, the bars should trend toward zero.
+
+### How the Agent Contributed
+The AI coding agent (Agent Mode) was used to:
+1. **Plan the feature design** — it suggested persisting scores to JSON keyed by difficulty and rendering a distance-based bar chart for guess history.
+2. **Scaffold the implementation** — it generated the `load_high_scores` / `save_high_score` helpers, wired them into `app.py`, and built the sidebar UI for both features.
+3. **Write tests** — it added three new pytest cases (`test_load_high_scores_missing_file`, `test_save_and_load_high_score`, `test_high_scores_separate_by_difficulty`) using temp files to avoid side effects.
+4. **Iterate on details** — it handled edge cases like missing JSON files, corrupt data, and non-numeric guesses in the history list.
 
 - [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
