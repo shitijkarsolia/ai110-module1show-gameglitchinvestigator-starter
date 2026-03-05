@@ -31,11 +31,11 @@ This game is a Streamlit-based number guessing app where the player tries to fin
 
 - Fixed game in action, showing a winning round with correct hints and score:
 
-  `![Screenshot of the fixed Glitchy Guesser game showing a winning state and correct score](images/game-win.png)`
+  ![Screenshot of the fixed Glitchy Guesser game showing a winning state and correct score](images/game-win.png)
 
 - Pytest results for the advanced edge-case tests (including the hard-mode range test) showing all tests passing:
 
-  `![Screenshot of pytest results with all tests passing](images/pytest-results.png)`
+  ![Screenshot of pytest results with all tests passing](images/pytest-results.png)
 
 ## 🚀 Stretch Features
 
