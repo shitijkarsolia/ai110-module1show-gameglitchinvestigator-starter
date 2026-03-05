@@ -58,4 +58,13 @@ The AI coding agent (Agent Mode) was used to:
 3. **Write tests** — it added three new pytest cases (`test_load_high_scores_missing_file`, `test_save_and_load_high_score`, `test_high_scores_separate_by_difficulty`) using temp files to avoid side effects.
 4. **Iterate on details** — it handled edge cases like missing JSON files, corrupt data, and non-numeric guesses in the history list.
 
-- [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
+## 🎨 Challenge 4: Enhanced Game UI
+
+The following UI enhancements were added with the help of an AI coding agent, without breaking core game logic:
+
+- **🔥❄️ Hot/Cold Proximity Hints** — After each wrong guess, a color-coded badge (Boiling → Hot → Warm → Cool → Freezing) tells the player how close they are to the secret number, scaled to the difficulty range.
+- **📊 Attempts Progress Bar** — A visual progress bar shows how many attempts have been used out of the total allowed.
+- **📋 Game Session Summary Table** — When the game ends (win or loss), a full summary appears with each guess's value, direction (Too High/Too Low), proximity label, and distance from the secret, plus metric cards for result, score, and attempts.
+- **🎨 Custom CSS** — Styled badges and layout tweaks for a polished look.
+
+![Screenshot of the enhanced game UI with Hot/Cold hints, progress bar, and session summary](images/enhanced-ui.png)
