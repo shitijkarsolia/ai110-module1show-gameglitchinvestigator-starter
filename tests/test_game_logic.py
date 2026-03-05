@@ -6,7 +6,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from logic_utils import check_guess
+from logic_utils import check_guess, get_range_for_difficulty
 
 def test_winning_guess():
     # If the secret is 50 and guess is 50, it should be a win
@@ -35,3 +35,16 @@ def test_guess_with_string_secret_prevents_type_bug():
     # Higher and lower comparisons should still behave numerically, not break with TypeError
     assert check_guess(60, "50") == "Too High"
     assert check_guess(40, "50") == "Too Low"
+
+
+def test_get_range_for_difficulty_hard_mode_bug_fixed():
+    """
+    The game previously behaved inconsistently with difficulty ranges.
+    This test verifies that the logic helper returns the correct range for each mode,
+    especially that Hard mode uses 1–50 instead of the generic 1–100 range.
+    """
+    assert get_range_for_difficulty("Easy") == (1, 20)
+    assert get_range_for_difficulty("Normal") == (1, 100)
+    assert get_range_for_difficulty("Hard") == (1, 50)
+    # Unknown difficulty should fall back to the Normal range
+    assert get_range_for_difficulty("Unknown") == (1, 100)

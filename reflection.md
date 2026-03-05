@@ -16,7 +16,7 @@ When I first examined the game code, I identified several critical bugs:
 
 ## 2. How did you use AI as a teammate?
 
-I primarily used VS Code Copilot inside Cursor to help me reason about the bugs and refactor the game logic. Instead of asking it to magically “fix everything,” I treated it like a pair-programmer: I asked targeted questions about specific functions, edge cases, and how to structure my tests. The AI was especially helpful at quickly pointing out suspicious code paths and suggesting where to add assertions.
+I primarily used VS Code Copilot to help me reason about the bugs and refactor the game logic. Instead of asking it to magically “fix everything,” I treated it like a pair-programmer: I asked targeted questions about specific functions, edge cases, and how to structure my tests. The AI was especially helpful at quickly pointing out suspicious code paths and suggesting where to add assertions.
 
 One correct suggestion from the AI was to move the core guessing logic into a pure helper function in `logic_utils.py` and write unit tests around it. The agent proposed implementing `check_guess` there and then adding a pytest case that simulated the old bug where the secret number was stored as a string. I verified that this was a good idea by running `pytest` and confirming that all four tests (including the new one) passed, and by playing the game to see that “Too High/Too Low” hints behaved correctly even after multiple guesses.
 
@@ -26,24 +26,16 @@ An example of a more incomplete/misleading suggestion was when the AI initially 
 
 ## 3. Debugging and testing your fixes
 
-- How did you decide whether a bug was really fixed?
-- Describe at least one test you ran (manual or using pytest)  
-  and what it showed you about your code.
-- Did AI help you design or understand any tests? How?
+I decided a bug was really fixed when both the automated tests and the live game behavior matched the rules I had written down for the game. After each change, I ran `pytest` inside the virtual environment and confirmed that the original tests plus my new `test_get_range_for_difficulty_hard_mode_bug_fixed` all passed. I also manually played several rounds on each difficulty level, watching the debug panel to confirm that the secret stayed within the correct range, the hints matched the comparison, and the attempts/score counters behaved as expected even after hitting "New Game." The AI helped me design these tests by encouraging me to move logic into `logic_utils.py` and then write focused tests for tricky cases like a string secret and the hard-mode range, which gave me much more confidence that the fixes would stick.
 
 ---
 
 ## 4. What did you learn about Streamlit and state?
 
-- In your own words, explain why the secret number kept changing in the original app.
-- How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
-- What change did you make that finally gave the game a stable secret number?
+I learned that in the original app the secret number kept changing because it was being recomputed on each rerun instead of being stored safely in `st.session_state`. Every time I clicked a button, Streamlit re-executed the script top to bottom, which meant any plain variables were reset unless they were explicitly put into session state. To a friend, I would explain that a Streamlit app is like a function that reruns on every interaction, and `st.session_state` is a special dictionary that remembers values across those reruns. The key change I made was to initialize the secret only when `"secret" not in st.session_state` and always read from that stored value, which finally gave the game a stable secret number throughout a playthrough.
 
 ---
 
 ## 5. Looking ahead: your developer habits
 
-- What is one habit or strategy from this project that you want to reuse in future labs or projects?
-  - This could be a testing habit, a prompting strategy, or a way you used Git.
-- What is one thing you would do differently next time you work with AI on a coding task?
-- In one or two sentences, describe how this project changed the way you think about AI generated code.
+One habit I want to reuse is writing small, focused tests around any logic that feels even slightly tricky, and running them frequently while I refactor. Another habit is treating AI tools as a brainstorming partner instead of an oracle: I’ll keep asking it for explanations and alternative designs, but I’ll verify everything with tests and by reading the code myself. Next time I work with AI, I’ll be quicker to push back on suggestions that only change surface-level behavior (like just flipping hint strings) and insist on understanding the underlying state or data model first. Overall, this project made me more skeptical of “working” AI-generated code and more confident that I need to stay in control of the debugging process, using AI as support rather than as a replacement for my own reasoning.

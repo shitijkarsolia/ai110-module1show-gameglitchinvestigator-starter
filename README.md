@@ -25,13 +25,17 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+This game is a Streamlit-based number guessing app where the player tries to find a secret number within a limited number of attempts using "higher" and "lower" hints. When I first opened it, the game was effectively unwinnable because the hints were reversed, the secret number sometimes changed type mid-game, and the UI messages didn't always match the actual difficulty ranges. I fixed these issues by refactoring the core logic into `logic_utils.py`, stabilizing the secret and attempt counters in `st.session_state`, correcting the hint logic, and making the difficulty ranges and on-screen messages consistent. I also added and ran pytest cases (including an extra test for the hard-mode range) to make sure the repaired logic behaved correctly and stayed robust against the original edge cases.
 
 ## 📸 Demo
 
-- [ ] [Insert a screenshot of your fixed, winning game here]
+- Fixed game in action, showing a winning round with correct hints and score:
+
+  `![Screenshot of the fixed Glitchy Guesser game showing a winning state and correct score](images/game-win.png)`
+
+- Pytest results for the advanced edge-case tests (including the hard-mode range test) showing all tests passing:
+
+  `![Screenshot of pytest results with all tests passing](images/pytest-results.png)`
 
 ## 🚀 Stretch Features
 
